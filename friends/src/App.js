@@ -1,58 +1,37 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import {connect} from 'react-redux';
 
-import Loader from 'react-loader-spinner';
-import {loginFetch} from "./actions";
+import {logout} from './actions';
 
-import './App.css';
+import Login from './components/Login';
+import FriendsList from './components/FriendsList';
+import PrivateRoute from './components/PrivateRoute';
+
+import './App.scss';
 
 class App extends Component {
-  state = {
-    username: '',
-    password: '',
-  }
 
-  handleChange = e => {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
-  }
-
-  handleLogin = e => {
-    e.preventDefault();
-    this.props.loginFetch(this.state);
-  }
-
-  render() {
+  render() { 
     return (
+      <Router>
       <div className="App">
-        <h1>ReduxFriends</h1>
-
-        {this.state.waiting ? (<Loader type="Rings" color="palevioletred" width="33"/>) : (
-          <form onSubmit={this.handleLogin}>
-          <input type="text"
-            name="username"
-            onChange={this.handleChange}
-            placeholder="username"
-            value={this.state.username}
-            required/>
-
-            <input type="text"
-            name="password"
-            onChange={this.handleChange}
-            placeholder="password"
-            value={this.state.password}
-            required/>
-
-            <input type="submit"/>
-        </form>
-        )}
-
         {this.props.error !== '' && ( <div className="error-text">{this.props.error}</div> )}
-
-        {this.props.loggedIn && ( <div className="login-page">LOGIN_SUCCESS</div> )}
-        
+      <header>
+        <h1>ReduxFriends</h1>
+        <nav>
+          {this.props.loggedIn && (
+          <>
+          <Link to="/my-friends">myFriends</Link>
+          <Link onClick={this.props.logout} to="/">Logout</Link>
+          </>
+          )}
+        </nav>
+      </header>
+      <Route exact path="/" component={Login} />
+      {this.props.loggedIn && ( <PrivateRoute path="/my-friends" component={FriendsList} /> )}
       </div>
+    </Router>
     );
   }
 }
@@ -60,7 +39,7 @@ class App extends Component {
 const mstp = state => ({
   error: state.error,
   loggedIn: state.loggedIn,
-  waiting: state.waiting,
 });
 
-export default connect(mstp,{loginFetch})(App);
+ 
+export default connect(mstp, {logout})(App);
