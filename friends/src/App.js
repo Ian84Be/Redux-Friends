@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+import {connect} from 'react-redux';
+
+import Loader from 'react-loader-spinner';
+import {loginFetch} from "./actions";
 
 import './App.css';
 
@@ -6,8 +10,6 @@ class App extends Component {
   state = {
     username: '',
     password: '',
-    waiting: false,
-    loggedIn: false,
   }
 
   handleChange = e => {
@@ -17,18 +19,16 @@ class App extends Component {
   }
 
   handleLogin = e => {
-    console.log('login');
     e.preventDefault();
-    this.setState({
-      waiting: true
-    })
+    this.props.loginFetch(this.state);
   }
 
   render() {
     return (
       <div className="App">
         <h1>ReduxFriends</h1>
-        {this.state.waiting ? (<div className="waiting">waiting..</div>) : (
+
+        {this.state.waiting ? (<Loader type="Rings" color="palevioletred" width="33"/>) : (
           <form onSubmit={this.handleLogin}>
           <input type="text"
             name="username"
@@ -48,11 +48,19 @@ class App extends Component {
         </form>
         )}
 
+        {this.props.error !== '' && ( <div className="error-text">{this.props.error}</div> )}
 
+        {this.props.loggedIn && ( <div className="login-page">LOGIN_SUCCESS</div> )}
         
       </div>
     );
   }
 }
 
-export default App;
+const mstp = state => ({
+  error: state.error,
+  loggedIn: state.loggedIn,
+  waiting: state.waiting,
+});
+
+export default connect(mstp,{loginFetch})(App);
